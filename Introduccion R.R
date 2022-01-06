@@ -1,9 +1,46 @@
+# R ----
 # R es un lenguaje de programación basado en el objetos. 
 #* No sólo se pueden crear objetos si no que estos pueden formar parte de las operaciones (dentro de ellos o entre distintos objetos)
 
 # Clases de objetos ----
-#* Existen 4 tipos de objetos que son manejables en R 
+#* Existen 5 tipos de objetos que son manejables en R 
 
-char <- c("Estadistica", "RRNN", "UCHILE") #Caracter
+chr <- c("Estadistica", "RRNN", "UCHILE") # (1) Caracter
 
-num <- c(1,2,3) #Numérico
+num <- c(1,2,3) # (2) Numérico (continuo)
+
+int <- c(1L,# (3) Entero (numérico discreto) 
+         2L,3L) #Se designan con un L (mayúscula). Discretización de un valor, necesario para la construcción de tabla de frecuencias más adelante (si se realiza con continuas sale error)
+
+cplx <- c(8i, # (4) Complejo. i = raiz de -1 (imaginario).
+          9 + 9i, # Designación de número complejos tambien involucra número reales (además de imaginarios)
+          10)
+
+logi <- c(FALSE, FALSE, TRUE, F, T) # (5) Lógico. Son objetos que en su interior presentan verdaderos (T) o falsos (F). Presentan una gran utilidad a la hora de filtrar.
+
+# ¿Qué tipo de objeto es? ¿Cual es su naturaleza?
+
+str(cplx)
+
+class(cplx)
+
+typeof(cplx)
+
+# Implicit coercion ----
+#* R acepta objetos "puros" (de un solo tipo). El tipo de objetos es excluyente. No se puede tener dos naturalezas en el mismo objeto.
+#* R toma la decisión de si un objeto es de un tipo u otro
+
+b <- c(1,2,FALSE);b;str(b) #F: se convierte en 0 debido a que el objeto creado es del tipo numérico (coerciona a otros valores a convertirse en num)
+
+# Explicit coercion ----
+#* Cambio forzado (por el usuario) del tipo de objeto
+
+# Forzar al objeto b (num) a ser lógico (logi)
+as.logical(b) # F: 0, T: todo lo que sea distinto de 0
+
+
+
+
+
+
+
