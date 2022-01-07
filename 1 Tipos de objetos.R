@@ -36,9 +36,12 @@ b <- c(1,2,FALSE);b;str(b) #F: se convierte en 0 debido a que el objeto creado e
 #* Cambio forzado (por el usuario) del tipo de objeto
 
 # Forzar al objeto b (num) a ser lógico (logi)
-as.logical(b) # F: 0, T: todo lo que sea distinto de 0
+as.logical(b) # F: 0, T: todo lo que sea distinto de 0 será T
 
+# No siempre será posible realizar una coersión explícita sobre un objeto
+f <- c("hola", "chao");f;str(f)
 
+as.numeric(f) #NA
 
 
 
