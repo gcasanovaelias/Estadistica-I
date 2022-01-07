@@ -111,4 +111,141 @@ library(writexl)
 
 writexl::write_xlsx(x = df, path = "datox.xlsx")
 
+# Bases de datos ----
+data(iris)
+
+# Primera aproximación
+str(iris)
+
+head(x = iris, n = 10) # Ver las primeras observaciones de la base de datos
+
+tail(iris) # Ver las últimas observaciones de la base de datos
+
+# ¿Qué especies están presentes?
+levels(iris$Species)
+
+unique(iris$Species)
+
+# Filtrado
+virginica <- iris[iris$Species == "virginica" & iris$Sepal.Length > 6.5,]
+
+# Tidyverse ----
+install.packages("tidyverse") # Colección de 8 librerias
+library(tidyverse)
+
+# Pipeline ( %>% ) hace referencia a una secuencia de instrucciones (chaining)
+
+iris %>% 
+  # filter(): filtrado
+  dplyr::filter(Species == "versicolor", Sepal.Length > 6.5) %>% 
+  # arrange(): Ordenar tus datos, desc(): ordenar de manera descendente 
+  arrange(desc(Sepal.Width)) %>% 
+  # mutate(): Modifica columna/variable o agrega una adicional
+  mutate(Ancho = c(1,2,3,4,5,6,7,8), # Agregar una columna nueva (a partir de un nuevo nombre)
+         Sepal.Width = Sepal.Width/100) %>% # Modificar una columna ya existente (ocupar el mismo nombre)
+  # Exportar con write_xlsx
+  writexl::write_xlsx("prueba.xlsx")
+
+iris %>% 
+  # group_by(): agrupación de observaciones según una columna o variable. Si no deseo hacer una distinción por especie simplemente se elimina el group_by()
+  group_by(Species) %>% 
+  # summarise(): resumir descriptivamente una variable
+  summarise(media = mean(Sepal.Length),
+            desvest = sd(Sepal.Length),
+            median = median(Sepal.Length),
+            rango = max(Sepal.Length) - min(Sepal.Length),
+            CV = sd(Sepal.Length)/mean(Sepal.Length)*100)
+
+iris %>% 
+  # select(): seleccionar columnas
+  select(-Species) %>% 
+  # summarise_all(): calcular estadígrafos para todas las variables
+  summarise_all(funs(mean, sd,median))
+
+iris %>% 
+  group_by(Species) %>% 
+  summarise_all(.funs = list(mean, sd, median))
+
+# Variables cualitativas ----
+
+# Tablas de frecuencia
+# table(): calcular la tabla de frecuencia para una variable cualitativa
+tabla <- table(iris$Species[iris$Sepal.Length > 5])
+
+str(tabla)
+# Es un objeto de tipo tabla, mejor transformarlo a un data frame
+
+tabla <- table(iris$Species[iris$Sepal.Length > 5]) %>% 
+  # as.data.frame(): conversión a un data frame
+  as.data.frame() %>% 
+  rename(Species = Var1, Frequency = Freq) %>% 
+  # Calcular la frecuencia relativa
+  mutate(Rel.Freq = round(Frequency/sum(Frequency)*100, 2));tabla
+
+
+# prop.table(): calcular la proporción de una tabla de frecuencia
+prop.table(table(iris$Species[iris$Sepal.Length > 5]))
+
+# Gráficos con ggplot2----
+
+# Librería base (graphic)
+iris$Species[iris$Sepal.Length > 5] %>% 
+  table() %>% 
+  barplot()
+
+  # Gráfico de barras
+barplot(Frequency ~ Species, 
+        data = tabla,
+        xlab = "Species",
+        ylab = "Frequency",
+        main = "Gráfico sencillo",
+        col = c("dark blue", "dark red", "dark green"))
+
+  # Gráfico de tortas
+iris$Species[iris$Sepal.Length > 5] %>% 
+  table() %>% 
+  pie()
+
+# ggplot2
+#* Permite ir construyendo gráficos por capas
+#* www.sthda.com/english/wiki
+
+  # Gráfico de barras
+ggplot(data = tabla, aes(x = Species, y = Frequency, fill = Species)) +
+  geom_bar(stat = "identity",
+           # Cambiar el ancho (0.9 el es valor por defecto)
+           width = 0.6) +
+  # Cambiar la paleta de colores (requiere que se indique fill en aes())
+  scale_fill_brewer(palette = "Reds") +
+  theme_minimal()
+
+install.packages("RcolorBrewer")
+library(RColorBrewer)
+display.brewer.all()
+
+
+  # Gráfico de tortas
+ggplot(data = tabla, aes(x = "", y = Frequency, fill = Species)) +
+  geom_bar(stat = "identity") +
+  # coord_polar(): transformar a un gráfico de tortas
+  coord_polar("y", start = 0) +
+  scale_fill_brewer(palette = "Greens") +
+  theme_void()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
