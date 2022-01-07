@@ -41,9 +41,38 @@ as.logical(b) # F: 0, T: todo lo que sea distinto de 0 será T
 # No siempre será posible realizar una coersión explícita sobre un objeto
 f <- c("hola", "chao");f;str(f)
 
-as.numeric(f) #NA
+as.numeric(f) #NA: Not Available
 
+# Estructura de datos ----
+#* Existen las matrices, data frames, vectores y listas. 
 
+# A pesar de que los objetos son excluyentes, se pueden combinar objetos de distinta naturaleza manteniendo su independencia (lista)
+list(chr, cplx, logi)
 
+# Del mismo modo, en los data frames cada columna puede presentarse una naturaleza distinta
+df <- data.frame(Pais = c("Chile", "Perú", "Bolivia", "Uruguay"),
+                 Habitantes = c(18, 22, 9, 5),
+                 PIB = c(100, 200, 300, 350))
 
+str(df)
+
+df.1 <- data.frame(A = chr, B = cplx)
+
+# Subseteo ----
+#* Selección de datos 
+df[,1]
+
+# Seleccionar los paises que presenten una cantidad de habitantes mayores de 10
+
+df$Habitantes > 10 # Vector del tipo lógico que permite realizar el filtro
+
+df$Pais[df$Habitantes > 10]
+
+df[df$Habitantes >10 & df$Habitantes < 19,]
+
+# Tidyverse 
+df %>% filter(Habitantes < 10, PIB > 300) %>% pull(Pais)
+
+# Modificar df ----
+colnames(df) <- c("Paises", "Hab", "PIB");df
 
