@@ -76,3 +76,39 @@ df %>% filter(Habitantes < 10, PIB > 300) %>% pull(Pais)
 # Modificar df ----
 colnames(df) <- c("Paises", "Hab", "PIB");df
 
+df[df$PIB == 200,]
+
+df[2,3] <- 250
+
+rownames(df) <- c("P1", "P2", "P3", "P4")
+
+# Importar un set de datos ----
+
+# Directorio
+getwd() # Para saber donde está el directorio
+
+setwd() # Para seleccionar un directorio
+
+# Funciones para importar
+#* Tambien se puede emplear el "Import Dataset" en la ventana de Environment (al lado de la escoba) 
+data <- read.table(file = "ejemplotext.txt", header = T, sep = " ") # Documento de texto
+  #* Tiene que asignarse a un objeto para que funcione
+
+read.csv(file = "ejemplocsv.csv", header = T, sep = ";") # Documento csv
+
+install.packages("readxl")
+library(readxl)
+readxl::read_xls("ejemploexel.xlls") #tibble es un tipo de data frame
+
+# Tambien se puede poner la ruta completa de un archivo que no se encuentre en el directorio
+read.table("~/Casanova/Estudio Personal/ejemplotext.txt")
+
+# Exportar datos ----
+# Llevarlo de un objeto R a un archivo excel
+
+install.packages("writexl") # Análogo a readxl
+library(writexl)
+
+writexl::write_xlsx(x = df, path = "datox.xlsx")
+
+
