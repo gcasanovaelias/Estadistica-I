@@ -16,14 +16,20 @@ ggplot(data = datos_frutas, aes(x = Especie, y = N.cajas, fill = Especie)) +
        subtitle = "Datos",
        y = "N° cajas (miles)",
        x = "Especie") +
-  theme(legend.position = "bottom")
+  geom_text(aes(label = N.cajas), 
+            hjust = 1.6, color = "white", size = 5.5) +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  # coord_flip(): cambiar las coordenadas (grafico de barras horizontales)
+  coord_flip()
 
 # Gráfico de tortas
 ggplot(data = datos_frutas, aes(x = "", y = N.cajas, fill = Especie)) +
-  geom_bar(stat = "identity") + 
+  geom_bar(stat = "identity", width = 1, color = "white") + 
   coord_polar("y", start = 0) +
   labs(title = "N° cajas por especie de fruta",
        subtitle = "Datos") +
+  scale_fill_manual(values = c("dark green", "dark red", "dark blue", "dark orange")) +
   theme_void() +
   theme(legend.position = "bottom")
 
@@ -34,11 +40,26 @@ datos_canino <- tibble(Causa = c("Neumonía", "Gastritis", "Enteritis", "Parasiti
                        N.atenciones.verano = c(15, 55, 50, 60, 24, 8, 20),
                        N.atenciones.invierno = c(48, 58, 41, 52, 56, 4, 20))
 
+datos_canino_longer <- datos_canino %>% 
+  pivot_longer(cols = starts_with("N.atenciones"),
+               names_prefix = "N.atenciones.",
+               names_to = "Temporada",
+               values_to = "N.atenciones")
+
 # a) Construya un gráfico de sectores circulares por cada época de atención
+ggplot(data = datos_canino_longer, aes(x = "", y = N.atenciones, fill = Causa)) +
+  geom_bar(stat = "identity", width = 1, color = "white") +
+  coord_polar(theta = "y", start = 0) +
+  labs(title = "N° atenciones en verano",
+       subtitle = "Datos clínica veterinaria") +
+  theme_void() +
+  theme(legend.position = "bottom") +
+  facet_wrap(~Temporada)
+
 # Verano
 ggplot(data = datos_canino, aes(x = "", y = N.atenciones.verano, fill = Causa)) +
   geom_bar(stat = "identity") + 
-  coord_polar("y", start = 0) +
+  coord_polar(theta = "y", start = 0) +
   labs(title = "N° atenciones en verano",
        subtitle = "Datos clínica veterinaria") +
   theme_void() +
@@ -47,39 +68,38 @@ ggplot(data = datos_canino, aes(x = "", y = N.atenciones.verano, fill = Causa)) 
 # Invierno
 ggplot(data = datos_canino, aes(x = "", y = N.atenciones.invierno, fill = Causa)) +
   geom_bar(stat = "identity") + 
-  coord_polar("y", start = 0) +
+  coord_polar(theta = "y", start = 0) +
   labs(title = "N° atenciones en invierno",
        subtitle = "Datos clínica veterinaria") +
   theme_void() +
   theme(legend.position = "bottom")
 
+
 # b) Construya un gráfico para comparar las causas de atención, sin considerar la época. ¿Cuál(es) s(son) las causas de mayor consulta?
-datos_canino %>% 
-  mutate(N.atenciones = N.atenciones.verano + N.atenciones.invierno) %>% 
-  ggplot(aes(x = Causa, y = N.atenciones, fill = Causa)) + 
-    geom_bar(stat = "identity") +
-    labs(title = "N° atenciones",
-         subtitle = "Datos clinica veterinaria",
-         y = "N° atenciones",
-         x = " ") + 
-    theme(legend.position = "bottom")
+datos_canino_anual <- datos_canino_longer %>% 
+  group_by(Causa) %>% 
+  summarise(N.atenciones = sum(N.atenciones))
+
+ggplot(data = datos_canino_anual, aes(x = Causa, y = N.atenciones, fill = Causa)) +
+  geom_bar(stat = "identity") +
+  labs(title = "N° atenciones",
+       subtitle = "Datos clinica veterinaria",
+       y = "N° atenciones",
+       x = " ") + 
+  geom_text(aes(label = N.atenciones), vjust = 1.6, color = "white", size = 4) +
+  theme(legend.position = "bottom")
 
 # c) Construya un gráfico en que se puedan comparar las causas por época ¿Cuál(es) causas son
 # más importantes en verano? ¿Cuál(es) causas son más importantes en invierno?
-
-datos_canino_longer <- datos_canino %>% 
-  pivot_longer(cols = starts_with("N.atenciones"),
-               names_prefix = "N.atenciones.",
-               names_to = "Temporada",
-               values_to = "N.atenciones")
-
-ggplot(data = datos_canino_longer, aes(x = Causa, y = N.atenciones, fill = Temporada)) + 
+ggplot(data = datos_canino_longer, aes(x = Causa, y = N.atenciones, fill = Causa)) + 
   geom_bar(stat = "identity", position = "dodge") +
   labs(title = "N° atenciones",
        subtitle = "Datos clinica veterinaria",
        y = "N° atenciones",
        x = " ") +
-  theme(legend.position = "bottom")
+  geom_text(aes(label = N.atenciones), vjust = 1.6, color = "white", size = 4) +
+  theme(legend.position = "bottom") +
+  facet_wrap(~Temporada)
 
 # d) Construya otro gráfico en que se puedan comparar las épocas por causa ¿En cuál época es
 # más crítica el distemper? ¿En cuál época es más crítica la gastritis?
@@ -90,7 +110,9 @@ ggplot(data = datos_canino_longer, aes(x = Temporada, y = N.atenciones, fill = C
        subtitle = "Datos clinica veterinaria",
        y = "N° atenciones",
        x = " ") +
-  theme(legend.position = "bottom")
+  geom_text(aes(label = N.atenciones), vjust = 1.2, color = "white", size = 4) +
+  theme(legend.position = "bottom") +
+  facet_wrap(~Causa)
 
 # Pregunta 3 ----
 # En una encuesta sobre hábito de consumo de ciertas frutas de las familias en las comunas de
@@ -108,23 +130,28 @@ data_comunas_longer <- data_comunas %>%
 # b) Represente en un gráfico adecuado estos datos mostrando las preferencias por cada
 # comuna.
 
-ggplot(data = data_comunas_longer, aes(x = Fruta, y = N.familia, fill = Comuna)) + 
+ggplot(data = data_comunas_longer, aes(x = Fruta, y = N.familia, fill = Fruta)) + 
   geom_bar(stat = "identity", position = "dodge") +
   labs(title = "Consumo de frutas en familias por comunas",
        subtitle = "Comunas de Ñuñoa y San Miguel",
        y = "N° Familia",
        x = "Frutas") + 
-  theme(legend.position = "bottom")
+  geom_text(aes(label = N.familia), vjust = 1.6, color = "white", size = 4) +
+  theme(legend.position = "bottom") +
+  facet_wrap(~Comuna)
 
 # c) Construya otro gráfico que permita la comparación adecuada entre las comunas.
 
-ggplot(data = data_comunas_longer, aes(x = Comuna, y = N.familia, fill = Fruta)) + 
+ggplot(data = data_comunas_longer, aes(x = Comuna, y = N.familia, fill = Comuna)) + 
   geom_bar(stat = "identity", position = "dodge") +
   labs(title = "Consumo de frutas en familias por comunas",
        subtitle = "Comunas de Ñuñoa y San Miguel",
        y = "N° Familia",
        x = "Comunas") + 
-  theme(legend.position = "bottom")
+  geom_text(aes(label = N.familia), vjust = 1.6, color = "white", size = 4) +
+  theme(legend.position = "bottom") +
+  facet_wrap(~Fruta)
+
 
 # Pregunta 4 ----
 # En una encuesta a 600 productores de trigo se les consultó sobre superficie sembrada y la
@@ -143,23 +170,33 @@ data_productores_longer <- data_productores %>%
 
 # a) Construya un gráfico que permita comparar adecuadamente nivel tecnológico según tamaño
 ggplot(data = data_productores_longer, 
-       aes(x = Nivel.tecnologico, y = f, fill = Tamaño)) +
+       # fct_relevel(): Cambiar el orden de los factores
+       aes(x = forcats::fct_relevel(Nivel.tecnologico, "Bajo", "Mediano", "Alto"), 
+           y = f,
+           fill = forcats::fct_relevel(Tamaño, "Pequeño", "Mediano", "Grande"))) +
   geom_bar(stat = "identity", position = "dodge") +
   labs(title = "Nivel tecnológico según tamaño de productores de trigo",
        subtitle = "Datos de superficie sembrada y tecnología empleada",
        x = "Nivel tecnológico",
        y = "Frecuencia absoluta (N°)") +
-  theme(legend.position = "bottom")
+  # Editar el nombre de la leyenda
+  guides(fill = guide_legend(title = "Tamaño")) +
+  theme(legend.position = "bottom") +
+  facet_wrap(~forcats::fct_relevel(Tamaño, "Pequeño", "Mediano", "Grande"))
 
 # b) Construya un gráfico adecuado para comparar tamaño según nivel tecnológico 
 ggplot(data = data_productores_longer, 
-       aes(x = Tamaño, y = f, fill = Nivel.tecnologico)) +
+       aes(x = fct_relevel(Tamaño, "Pequeño", "Mediano", "Grande"), 
+           y = f, 
+           fill = fct_relevel(Nivel.tecnologico, "Bajo", "Mediano", "Alto"))) +
   geom_bar(stat = "identity", position = "dodge") +
   labs(title = "Tamaño de productores según nivel tecnológico",
        subtitle = "Datos de superficie sembrada y tecnología empleada",
        x = "Tamaño",
        y = "Frecuencia absoluta (N°)") +
-  theme(legend.position = "bottom")
+  guides(fill = guide_legend(title = "Nivel Tecnológico")) +
+  theme(legend.position = "bottom") +
+  facet_wrap(~fct_relevel(Nivel.tecnologico, "Bajo", "Mediano", "Alto"))
 
 # Pregunta 5 ----
 # La tabla muestra la distribución de 340 plantas enfermas que fueron sometidas a uno de los cuatro
@@ -184,7 +221,7 @@ s <- ggplot(data = datos_plantas_longer, aes(x = Tratamiento, y = f, fill = Cond
   theme(legend.position = "bottom")
 
 # a) En valores absolutos
-s + geom_bar(stat = "identity", position = "stack")
+s + geom_bar(stat = "identity", position = "stack") 
 
 # b) En valores porcentuales
 s + geom_bar(stat = "identity", position = "fill")
@@ -224,4 +261,62 @@ ggplot(data = dato_carne_longer, aes(x = Año, y = Producción, fill = Categoría))
        x = "Años",
        y = "Producción (ton)") +
   theme_minimal() +
-  theme(legend.position = "bottom")
+  theme(legend.position = "bottom") +
+  facet_wrap(~Categoría)
+
+# Pregunta 7 ----
+# Los embarques de frambuesas frescas a Europa y USA, durante 8 semanas, en miles de cajas, se
+# resume en la tabla a continuación
+
+frambuesas <- tibble(Destino = c("USA", "EUROPA"),
+                     S1 = c(34, 10),
+                     S2 = c(80, 14),
+                     S3 = c(48, 20),
+                     S4 = c(59, 27),
+                     S5 = c(49, 25),
+                     S6 = c(83, 30),
+                     S7 = c(47, 13),
+                     S8 = c(62, 8))
+
+frambuesas_longer <- frambuesas %>% 
+  pivot_longer(cols = starts_with("S"),
+               names_to = "Semana",
+               names_prefix = "S",
+               values_to = "Cantidad")
+
+# Construir un grafico adecuado
+# a) Que muestre las cajas totales embarcadas.
+
+frambuesas_total <- frambuesas_longer %>% 
+  group_by(Semana) %>% 
+  summarise(Cantidad.total = sum(Cantidad))
+
+ggplot(data = frambuesas_total, aes(x = Semana, y = Cantidad.total)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  labs(title = "Cajas totales embarcadas",
+       subtitle = "Miles de cajas",
+       x = "Semana",
+       y = "Cantidad [miles de cajas]") +
+  geom_text(aes(label = Cantidad.total), vjust = 1.6, color = "white", size = 4) +
+  theme_minimal()
+  
+# b) Que muestre comparativamente los embarques por destino.
+
+ggplot(data = frambuesas_longer, aes(x = Semana, y = Cantidad, fill = Destino)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Cajas totales embarcadas",
+       subtitle = "Miles de cajas",
+       x = "Semana",
+       y = "Cantidad [miles de cajas]") +
+  geom_text(aes(label = Cantidad), vjust = 1.6, color = "white", size = 4)+
+  facet_wrap(~Destino)
+
+# Pregunta 8 ----
+
+
+
+
+
+
+
+

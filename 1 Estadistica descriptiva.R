@@ -210,9 +210,13 @@ iris$Species[iris$Sepal.Length > 5] %>%
 
 # Gráfico de tortas
 ggplot(data = tabla, aes(x = "", y = Frequency, fill = Species)) +
-  geom_bar(stat = "identity") +
+  geom_bar(stat = "identity",
+           # Poner líneas blancas
+           color = "white") +
   # coord_polar(): transformar a un gráfico de tortas
-  coord_polar("y", start = 0) +
+  coord_polar(theta = "y", start = 0) +
+  # scale_fill_brewer(): usar paleta de colores del paquete RColorBrewer
+  # scale_fill_manual(): usar colores designados por el usuario
   scale_fill_brewer(palette = "Greens") +
   theme_void()
 
@@ -227,7 +231,11 @@ ggplot(data = tabla, aes(x = Species, y = Frequency, fill = Species)) +
            width = 0.6) +
   # Cambiar la paleta de colores (requiere que se indique fill en aes())
   scale_fill_brewer(palette = "Reds") +
-  theme_minimal()
+  theme_minimal() +
+  # geom_text(): agregar valores al gráfico
+  geom_text(aes(label = Frequency),
+            # hjust: corregir la posición en el eje horizontal (vjust análogo en el eje vertical)
+            vjust = -0.8, size = 4)
 
 # Otros gráficos de barras
 fact2 <- readxl::read_excel("Factorial2.xlsx")
