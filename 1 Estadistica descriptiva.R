@@ -2,7 +2,7 @@
 # R es un lenguaje de programación basado en el objetos. 
 #* No sólo se pueden crear objetos si no que estos pueden formar parte de las operaciones (dentro de ellos o entre distintos objetos)
 
-# Clases de objetos ----
+# Clases de objetos
 #* Existen 5 tipos de objetos que son manejables en R 
 
 chr <- c("Estadistica", "RRNN", "UCHILE") # (1) Caracter
@@ -26,13 +26,14 @@ class(cplx)
 
 typeof(cplx)
 
-# Implicit coercion ----
+# Coercion ----
+# Implicit coercion
 #* R acepta objetos "puros" (de un solo tipo). El tipo de objetos es excluyente. No se puede tener dos naturalezas en el mismo objeto.
 #* R toma la decisión de si un objeto es de un tipo u otro
 
 b <- c(1,2,FALSE);b;str(b) #F: se convierte en 0 debido a que el objeto creado es del tipo numérico (coerciona a otros valores a convertirse en num)
 
-# Explicit coercion ----
+# Explicit coercion
 #* Cambio forzado (por el usuario) del tipo de objeto
 
 # Forzar al objeto b (num) a ser lógico (logi)
@@ -43,7 +44,7 @@ f <- c("hola", "chao");f;str(f)
 
 as.numeric(f) #NA: Not Available
 
-# Estructura de datos ----
+# Datos ----
 #* Existen las matrices, data frames, vectores y listas. 
 
 # A pesar de que los objetos son excluyentes, se pueden combinar objetos de distinta naturaleza manteniendo su independencia (lista)
@@ -58,8 +59,7 @@ str(df)
 
 df.1 <- data.frame(A = chr, B = cplx)
 
-# Subseteo ----
-#* Selección de datos 
+# Subseteo 
 df[,1]
 
 # Seleccionar los paises que presenten una cantidad de habitantes mayores de 10
@@ -73,7 +73,7 @@ df[df$Habitantes >10 & df$Habitantes < 19,]
 # Tidyverse 
 df %>% filter(Habitantes < 10, PIB > 300) %>% pull(Pais)
 
-# Modificar df ----
+# Modificar df
 colnames(df) <- c("Paises", "Hab", "PIB");df
 
 df[df$PIB == 200,]
@@ -82,7 +82,7 @@ df[2,3] <- 250
 
 rownames(df) <- c("P1", "P2", "P3", "P4")
 
-# Importar un set de datos ----
+# Importar un set de datos
 
 # Directorio
 getwd() # Para saber donde está el directorio
@@ -103,7 +103,7 @@ readxl::read_xls("ejemploexel.xlls") #tibble es un tipo de data frame
 # Tambien se puede poner la ruta completa de un archivo que no se encuentre en el directorio
 read.table("~/Casanova/Estudio Personal/ejemplotext.txt")
 
-# Exportar datos ----
+# Exportar datos
 # Llevarlo de un objeto R a un archivo excel
 
 install.packages("writexl") # Análogo a readxl
@@ -111,7 +111,7 @@ library(writexl)
 
 writexl::write_xlsx(x = df, path = "datox.xlsx")
 
-# Bases de datos ----
+# Tidyverse ----
 data(iris)
 
 # Primera aproximación
@@ -129,7 +129,7 @@ unique(iris$Species)
 # Filtrado
 virginica <- iris[iris$Species == "virginica" & iris$Sepal.Length > 6.5,]
 
-# Tidyverse ----
+# Tidyverse
 install.packages("tidyverse") # Colección de 8 librerias
 library(tidyverse)
 
@@ -166,9 +166,7 @@ iris %>%
   group_by(Species) %>% 
   summarise_all(.funs = list(mean, sd, median))
 
-# Variables cualitativas ----
-
-# Tablas de frecuencia
+# Tablas de frecuencia variables cualitativas ----
 # table(): calcular la tabla de frecuencia para una variable cualitativa
 tabla <- table(iris$Species[iris$Sepal.Length > 5])
 
@@ -186,7 +184,7 @@ tabla <- table(iris$Species[iris$Sepal.Length > 5]) %>%
 # prop.table(): calcular la proporción de una tabla de frecuencia
 prop.table(table(iris$Species[iris$Sepal.Length > 5]))
 
-# Gráficos con ggplot2----
+# Gráficos con ggplot2 ----
 
 # Librería base (graphic)
 iris$Species[iris$Sepal.Length > 5] %>% 
@@ -210,7 +208,19 @@ iris$Species[iris$Sepal.Length > 5] %>%
 #* Permite ir construyendo gráficos por capas
 #* www.sthda.com/english/wiki
 
-  # Gráfico de barras
+# Gráfico de tortas
+ggplot(data = tabla, aes(x = "", y = Frequency, fill = Species)) +
+  geom_bar(stat = "identity") +
+  # coord_polar(): transformar a un gráfico de tortas
+  coord_polar("y", start = 0) +
+  scale_fill_brewer(palette = "Greens") +
+  theme_void()
+
+install.packages("RcolorBrewer")
+library(RColorBrewer)
+display.brewer.all()
+
+# Gráfico de barras
 ggplot(data = tabla, aes(x = Species, y = Frequency, fill = Species)) +
   geom_bar(stat = "identity",
            # Cambiar el ancho (0.9 el es valor por defecto)
@@ -219,33 +229,112 @@ ggplot(data = tabla, aes(x = Species, y = Frequency, fill = Species)) +
   scale_fill_brewer(palette = "Reds") +
   theme_minimal()
 
-install.packages("RcolorBrewer")
-library(RColorBrewer)
-display.brewer.all()
+# Otros gráficos de barras
+fact2 <- readxl::read_excel("Factorial2.xlsx")
 
+  # Estadística descriptiva mediante agrupación
+resumen <- fact2 %>% 
+  group_by(Sexo, Estacion) %>% 
+  summarise(mean.conc.Pr = mean(Conc.Prot.),
+            sd.conc.Pr = sd(Conc.Prot.))
 
-  # Gráfico de tortas
-ggplot(data = tabla, aes(x = "", y = Frequency, fill = Species)) +
-  geom_bar(stat = "identity") +
-  # coord_polar(): transformar a un gráfico de tortas
-  coord_polar("y", start = 0) +
-  scale_fill_brewer(palette = "Greens") +
-  theme_void()
+s <- ggplot(data = resumen, aes(x = Sexo, y = mean.conc.Pr, fill = Estacion)) + 
+  theme_minimal()
 
+s + geom_bar(stat = "identity", position = "stack") # Gráfico de barras apiladas 
 
+s + geom_bar(stat = "identity", position = "dodge") # Barras ordenadas al lado
 
+s + geom_bar(stat = "identity", position = "fill") # Barras apiladas pero en términos porcentuales
 
+# Tablas de frecuencia variables cuantitativas continuas ----
+#* Existen varias librerias que sirven para crear tablas de frecuencias
+install.packages("agricolae")
+library(agricolae)
 
+# range(): entrega los valores min y max de los datos
+range(iris$Sepal.Length)
 
+# Grafico histograma de graphics
+tmp <- hist(iris$Sepal.Length, 
+            plot = F, # Para no graficar sino que entregue la información
+            breaks = c(4,5,5.5,6,6.3,8)) # Modificación de los breaks en el histograma
 
+# A partir del histograma se identifican los rangos a emplear para la tabla de frecuencia
+# table.freq(): construcción de una tabla de frecuencia
+tablafrecuencia <- agricolae::table.freq(tmp)
 
+colnames(tablafrecuencia) <- c("LI", "LS", "MC", "f", "h", "F", "H")
 
+# IMPORTANTE: Los rangos de los intervalos son cerrados a la derecha (contienen el valor del LS)
 
+# Armar nuestra propia tabla de frecuencias para variables cuantitativas continuas
+iris %>% 
+  pull(Sepal.Length) %>% 
+  # cut(): segmentar los datos según intervalos designados. El resultado es un vector que indica el rango en el que la observación se encuentra presente.
+  cut(breaks = seq(4, 8, by = 0.5), 
+      # Considerar el intervalo cerrado a la derecha y abierto a la izquierda
+      right = T) %>% 
+  # Calcular la frecuencia de observaciones dentro de los intervalos
+  table() %>% 
+  # Convertir del formato table a data frame
+  as.data.frame() %>% 
+  as_tibble() %>% 
+  # Agregar las demás frecuencias
+  mutate(h = round(Freq/sum(Freq)*100, 1),
+         # cumsum(): función de suma acumulada (cumulative sum)
+         F = cumsum(Freq),
+         H = cumsum(h)) %>% 
+  rename(f = Freq)
 
+# Tablas de frecuencia variables cuantitativas discretas ----
 
+# Simulación para crear datos discretos
+# set.seed(): insertar una semilla para que nuestros datos sean replicables
+#* El resultado de un proceso aleatorio será el mismo para todos los computadores en donde se realice
+set.seed(seed = 1)
+#* Los datos cuantitativos discretos los vamos a obtener a través de una distribución de Poisson (variable aleatoria discreta)
+# rpois(): selección al azar de 100 datos de una distribución de Poisson
+dato <- rpois(n = 150, lambda = 7) # La distribución Poisson genera datos cuantitativos discretos
 
+str(dato)
 
+dato %>% 
+  table() %>% 
+  as_tibble() %>% 
+  rename(Value = ".", f = n) %>% 
+  mutate(h = round(f/sum(f)*100, digits = 1),
+         F = cumsum(f),
+         H = cumsum(h))
 
+# Boxplot con ggplot ----
 
+ggplot(data = iris, aes(x = Species, y = Sepal.Length, color = Species)) +
+  # outlier.alpha = 0: Eliminar los outliers de la visualización
+  geom_boxplot(outlier.color = "black") +
+  # Agregar la media a los boxplots
+  stat_summary(fun = mean, color = "dark grey")
 
+# Cuantiles ----
+#* Los cuantiles son los percentiles ya no en formato % si no en decimales
+tabla <- iris %>% 
+  filter(Species == "versicolor") %>% 
+  pull(Sepal.Length) %>% 
+  quantile(c(0.25, 0.5, 0.75)) %>% 
+  as.data.frame() %>% 
+  rownames_to_column() %>% 
+  as_tibble() %>% 
+  mutate(rowname = as.numeric(str_remove(rowname, pattern = "%")),
+         Q = c("Q1", "Q2", "Q3")) %>%
+  rename(k = rowname, P = ".") %>% 
+  relocate(Q, .after = "k")
 
+# Rango intercuartílico de los datos
+RI <- tabla$P[tabla$Q == "Q3"] - tabla$P[tabla$Q == "Q1"]
+
+iris %>% 
+  group_by(Species) %>% 
+  summarise(Q1 = quantile(Sepal.Length, 0.25),
+            Q2 = quantile(Sepal.Length, 0.50),
+            Q3 = quantile(Sepal.Length, 0.75),
+            RI = quantile(Sepal.Length, 0.75) - quantile(Sepal.Length, 0.25))
