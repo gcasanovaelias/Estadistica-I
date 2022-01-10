@@ -36,6 +36,8 @@ ggplot(data = datos_frutas, aes(x = "", y = N.cajas, fill = Especie)) +
 # Pregunta 2 ----
 #* Las causas más frecuentes de atención en caninos en una clínica veterinaria de la comuna de
 #* Santiago en dos épocas del año se presenta a continuación:
+
+# Tabular las bases de datos en función de las variables. tienen que haber tantas columnas como variables haya.
 datos_canino <- tibble(Causa = c("Neumonía", "Gastritis", "Enteritis", "Parasitismo", "Distemper", "Dermatitis", "Traumatismos"),
                        N.atenciones.verano = c(15, 55, 50, 60, 24, 8, 20),
                        N.atenciones.invierno = c(48, 58, 41, 52, 56, 4, 20))
@@ -213,7 +215,8 @@ datos_plantas_longer <- datos_plantas %>%
                values_to = "f")
 
 # Construya gráficos en que se puedan comparar los resultados por tratamiento:
-s <- ggplot(data = datos_plantas_longer, aes(x = Tratamiento, y = f, fill = Condicion)) +
+s <- ggplot(data = datos_plantas_longer, aes(x = Tratamiento, y = f, 
+                                             fill = forcats::fct_relevel(Condición. "Mejor", "Igual", "Peor")) +
   labs(title = "Condición de plantas enfermas posterior a tratamientos",
        subtitle = "Distribución de 340 plantas enfermas",
        x = "Tratamiento",
@@ -312,11 +315,104 @@ ggplot(data = frambuesas_longer, aes(x = Semana, y = Cantidad, fill = Destino)) 
   facet_wrap(~Destino)
 
 # Pregunta 8 ----
+#  La tabla especifica la natalidad y mortalidad por cada 1000 habitantes entre 1950 y 1995
 
+poblacion <- tibble(Metrica = c("Natalidad", "Mortalidad"),
+                    "1950" = c(25, 13.2),
+                    "1955" = c(23.7, 13),
+                    "1960" = c(21.3, 11.7),
+                    "1965" = c(18.9, 11.3),
+                    "1970" = c(16.9, 10.6),
+                    "1975" = c(17.9, 10.8),
+                    "1980" = c(19.5, 10.6),
+                    "1985" = c(23.6, 9.6),
+                    "1990" = c(24.6, 9.3),
+                    "1995" = c(25, 8.5))
 
+poblacion_longer <- poblacion %>% 
+  pivot_longer(cols = -Metrica,
+               names_to = "Año",
+               values_to = "Valores") %>% 
+  mutate(Año = as.integer(Año))
 
+# a) Represente los datos mediante gráficos adecuados, en tres formas diferentes, uno de tipo lineal
+# Lineas y puntos
+ggplot(data = poblacion_longer, aes(x = as.integer(Año), y = Valores, color = Metrica)) +
+  geom_line() +
+  geom_point() +
+  labs(title = "Natalidad y mortalidad a través de los años",
+       subtitle = "Entre 1950 y 1995",
+       x = "Años",
+       y = "Valor por cada 100o habitantes") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
 
+# Barras
+ggplot(data = poblacion_longer, aes(x = forcats::fct_relevel(Metrica, "Natalidad", "Mortalidad"), 
+                                    y = Valores, fill = forcats::fct_relevel(Metrica, "Natalidad", "Mortalidad"))) +
+  geom_bar(stat = "identity") +
+  labs(title = "Natalidad y mortalidad a través de los años",
+       subtitle = "Entre 1950 y 1995",
+       x = "Años",
+       y = "Valor por cada 100o habitantes") +
+  geom_text(aes(label = Valores), vjust = 1.6, color = "black", size = 4) +
+  theme_grey() +
+  theme(legend.position = "bottom") +
+  guides(fill = guide_legend(title = "Métrica")) + 
+  scale_fill_manual(values = c("light blue", "pink")) +
+  facet_wrap(~Año)
 
+ggplot(data = poblacion_longer, aes(x = Año, y = Valores, color = Metrica)) +
+  geom_bar(stat = "identity", fill = "white") +
+  labs(title = "Natalidad y mortalidad a través de los años",
+       subtitle = "Entre 1950 y 1995",
+       x = "Años",
+       y = "Valor por cada 100o habitantes") +
+  geom_text(aes(label = Valores), vjust = -0.5, color = "black", size = 4) +
+  theme_grey() +
+  theme(legend.position = "bottom") +
+  guides(fill = guide_legend(title = "Métrica")) + 
+  scale_fill_manual(values = c("light blue", "pink")) +
+  facet_grid(Metrica ~ .)
+
+# Pregunta 10 ----
+# Se cuenta el número de arañitas rojas en 50 hojas de un manzano seleccionadas aleatoriamente, obteniéndose los siguientes datos:
+  
+arañas <- tibble(Hojas = seq(from = 1, to = 50),
+                 N.arañas = c(8, 6, 5, 3, 3, 4, 0, 2, 4, 5, 0, 6, 5, 2, 4, 6, 7, 1, 4, 3, 7, 6, 5, 3, 0, 4, 6, 2, 1, 0, 3, 5, 5, 4, 3, 1, 1, 2, 0, 6, 4, 1, 3, 2, 8, 4, 5, 6, 2, 3))
+
+# Clasifique los datos en una tabla de frecuencias y resuelva los siguientes puntos:
+# a) Tabla frecuencia variables cuantitativas discretas
+arañas.tb <- arañas %>% 
+  pull(N.arañas) %>% 
+  table() %>% 
+  as_tibble() %>% 
+  rename(VC = ".", f = n) %>% 
+  mutate(h = f/sum(f)*100,
+         F = cumsum(f),
+         H = cumsum(h))
+
+# b) Metricas resumen
+arañas %>% 
+  summarise(Mean = mean(N.arañas),
+            Median = median(N.arañas),
+            SD = sd(N.arañas),
+            Min = min(N.arañas),
+            Max = max(N.arañas)) %>% 
+  mutate(CV = SD/Mean,
+         Range = Max - Min) %>% 
+  select(-c(Min, Max)) %>% 
+  relocate(CV, .after = Range)
+
+# c) Gráficos (histograma)
+
+ggplot(data = arañas, aes(x = N.arañas)) + 
+  geom_histogram(binwidth = 1, fill = "light blue") +
+  geom_vline(data = arañas, aes(xintercept = mean(N.arañas)), linetype = "dashed", color = "dark red") +
+  labs(title = "Histograma",
+       subtitle = "N° arañas en 50 hojas de manzano",
+       x = "N° arañas",
+       y = "Conteo [n]")
 
 
 
