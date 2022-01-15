@@ -216,16 +216,16 @@ datos_plantas_longer <- datos_plantas %>%
 
 # Construya gráficos en que se puedan comparar los resultados por tratamiento:
 s <- ggplot(data = datos_plantas_longer, aes(x = Tratamiento, y = f, 
-                                             fill = forcats::fct_relevel(Condición. "Mejor", "Igual", "Peor")) +
-  labs(title = "Condición de plantas enfermas posterior a tratamientos",
-       subtitle = "Distribución de 340 plantas enfermas",
-       x = "Tratamiento",
-       y = "Frecuencia") +
-  theme(legend.position = "bottom")
-
+                                             fill = forcats::fct_relevel(Condicion, "Mejor", "Igual", "Peor"))) +
+              labs(title = "Condición de plantas enfermas posterior a tratamientos",
+                   subtitle = "Distribución de 340 plantas enfermas",
+                   x = "Tratamiento",
+                   y = "Frecuencia") +
+              theme(legend.position = "bottom")
+            
 # a) En valores absolutos
 s + geom_bar(stat = "identity", position = "stack") 
-
+            
 # b) En valores porcentuales
 s + geom_bar(stat = "identity", position = "fill")
 
@@ -407,12 +407,271 @@ arañas %>%
 # c) Gráficos (histograma)
 
 ggplot(data = arañas, aes(x = N.arañas)) + 
-  geom_histogram(binwidth = 1, fill = "light blue") +
-  geom_vline(data = arañas, aes(xintercept = mean(N.arañas)), linetype = "dashed", color = "dark red") +
+  # geom_histogram(): histogramas
+  geom_histogram(binwidth = 1, fill = "light blue", color = "steelblue") +
+  # geom_freqpoly(): polígono de frecuencia
+  geom_freqpoly(binwidth = 1, color = "red") +
+  geom_vline(data = arañas, 
+             aes(xintercept = mean(N.arañas)), linetype = "dashed", color = "dark red") +
   labs(title = "Histograma",
        subtitle = "N° arañas en 50 hojas de manzano",
        x = "N° arañas",
        y = "Conteo [n]")
 
+# Pregunta 11 ----
+# En una encuesta a 750 familias se obtuvo la información del número de hijos de cada una de
+# ellas, resumida en la siguiente tabla
 
+# a) Tabla de frecuencia
+familia <- tibble(N.hijos = seq(from = 0, to = 8),
+                  f = c(40, 140, 220, 160, 85, 45, 25, 20, 15)) 
+
+familia.tf <- familia %>% 
+  mutate(h = f/sum(f)*100,
+         F = cumsum(f),
+         H = cumsum(h))
+
+# b) Medidas resumen
+# Media aritmética
+familia.mean <- map2(.x = familia$N.hijos,
+                     .y = familia$f,
+                     # Emplear una fórmula y no una función
+                     .f = ~.x*.y/sum(familia$f)) %>% 
+  # Sumar todos los elementos de las listas y dividirlos por n
+  reduce(sum)
+
+# Desviación estándar
+familia.sd <- map2(.x = familia$N.hijos,
+                   .y = familia$f,
+                   .f = ~(.y*(.x - familia.mean)^2)/sum(familia$f)) %>% 
+  reduce(sum) %>% 
+  sqrt()
+
+# Coeficiente de variación
+familia.CV <- familia.sd/familia.mean*100
+
+# Pregunta 12 ----
+
+puntajes <- {c(42,32,13,18,23,44,41,18,15,25,
+               35,28,17,28,42,51,50,21,27,36,
+               68,84,75,82,68,90,62,88,76,93,
+               73,79,88,73,60,93,71,59,85,75,
+               61,65,75,87,74,62,95,78,63,72,
+               66,78,82,75,94,77,69,74,68,60,
+               46,38,89,21,75,35,60,79,23,31,
+               39,42,27,97,78,85,76,65,71,55,
+               55,80,63,57,78,68,62,76,53,74,
+               66,67,73,81,52,63,76,75,85,47)}
+
+# Rango
+max(puntajes) - min(puntajes)
+
+# Tablas de frecuencia. Encuentre el rango de los datos y clasifíquelos en una tabla de frecuencias. Use 7 intervalos
+puntajes.tb <- puntajes %>% 
+  hist(plot = F, breaks = seq(from = 13, to = 97, by = 12)) %>% 
+  agricolae::table.freq() %>% 
+  as_tibble() %>% 
+  rename(MC = Main, f = Frequency, h = Percentage, F = CF, H = CPF)
+
+# b) ¿cuántos estudiantes obtuvieron MÁS de 75 puntos?
+P <- 75; Li <- 73; ci <- 12; fi <- 28; Fi1 <- 62; N <- 100
+
+# Ecuación con la variable k despejada (la original tiene despejada la variable P)
+k <- ((P-Li)*fi/ci + Fi1)*100/N; k
+
+100-k #33.3
+
+
+# c) ¿Qué % de estudiantes obtuvo entre 50 y 70 puntos?
+# P70
+P <- 70; Li <- 61; ci <- 12; fi <- 22; Fi1 <- 40; N <- 100
+
+k70 <- ((P-Li)*fi/ci + Fi1)*100/N; k70
+
+# P50
+P <- 50; Li <- 49; ci <- 12; fi <- 12; Fi1 <- 28; N <- 100
+
+k50 <- ((P-Li)*fi/ci + Fi1)*100/N; k50
+
+k70 - k50 #27.5
+
+
+# d) Calcule e interprete la media, la mediana
+# Media
+puntajes.mean <- map2(.x = puntajes.tb$MC,
+                      .y = puntajes.tb$f,
+                      .f = ~.x*.y/sum(puntajes.tb$f)) %>% 
+  reduce(sum)
+
+# Me = P50
+k <- 50; Li <- 61; ci <- 12; fi <- 22; Fi1 <- 40; N <- 100
+
+# Ecuación original
+P50 <- Li + ((k*N/100)-Fi1)*ci/fi; P50
+
+
+# e) Calcule e interprete Q1, Q3 y P95
+# Q1 = P25
+k <- 25; Li <- 37; ci <- 12; fi <- 9; Fi1 <- 19; N <- 100
+
+P25 <- Li + ((k*N/100)-Fi1)*ci/fi; P25
+
+# Q3 = P75
+k <- 75; Li <- 73; ci <- 12; fi <- 28; Fi1 <- 62; N <- 100
+
+P75 <- Li + ((k*N/100)-Fi1)*ci/fi; P75
+
+# P95
+k <- 95; Li <- 85; ci <- 12; fi <- 10; Fi1 <- 90; N <- 100
+
+P95 <- Li + ((k*N/100)-Fi1)*ci/fi; P95
+
+
+# f) Calcule la varianza y la desviación estándar de los puntajes obtenidos
+
+puntajes.sd <- map2(.x = puntajes.tb$MC,
+                    .y = puntajes.tb$f,
+                    .f = ~(.y*(.x-puntajes.mean)^2)/sum(puntajes.tb$f)) %>% 
+  reduce(sum) %>% 
+  sqrt()
+
+# Pregunta 13 ----
+# La tabla corresponde a la clasificación de los pesos de 250 manzanas Granny seleccionadas al
+# azar de la producción de un huerto
+
+# Tabla de frecuencia (datos cuantitativos continuos)
+manzanas.tf <- tibble(Lower = seq(from = 120, to = 210, by = 15),
+                      Upper = seq(from = 135, to = 225, by = 15),
+                      f = c(15, 35, 40, 45, 50, 42, 25)) %>% 
+  mutate(MC = (Lower + Upper)/2,
+         h = f/sum(f)*100,
+         F = cumsum(f),
+         H = cumsum(h)) %>% 
+  relocate(MC, .after = Upper)
+
+# a) Calcule la media y mediana de los pesos e interprete estos valores.
+# Media aritmética
+manzanas.mean <- map2(.x = manzanas.tf$MC,
+                      .y = manzanas.tf$f,
+                      .f = ~.x*.y/sum(manzanas.tf$f)) %>% reduce(sum)
+
+# Median
+k <- 50; Li <- 165; N <- sum(manzanas.tf$f); fi <- 45; Fi1 <- 90; ci <- 15
+
+manzanas.Me <- Li + ((k*N/100)-Fi1)*ci/fi; manzanas.Me
+
+# b) Calcule e interprete la varianza, desviación estándar y C.V de los pesos
+
+manzanas.sd <- map2(.x = manzanas.tf$MC,
+                    .y = manzanas.tf$f, 
+                    .f = ~(.y*(.x - manzanas.mean)^2)/sum(manzanas.tf$f)) %>% 
+  reduce(sum) %>% 
+  sqrt()
+
+manzanas.CV <- manzanas.sd/manzanas.mean*100
+
+# c) Construya el histograma y el polígono de frecuencia
+
+manzanas.tib <- map2(.x = manzanas.tf$MC, 
+                     .y = manzanas.tf$f,
+                     .f = ~rep(.x, .y)) %>% 
+  reduce(c) %>% 
+  as_tibble()
+
+
+ggplot(data = manzanas.tib, aes(x = value, y = ..density..)) +
+  geom_histogram(fill = "light blue",
+                 color = "steelblue",
+                 # Breaks de los intervalos
+                 breaks = seq(from = 120, to = 225, by = 15)) +
+  geom_freqpoly(breaks = seq(from = 120, to = 225, by = 15), color = "red") +
+  geom_vline(data = manzanas.tib, 
+             # La intercepción será en el valor de la media aritmética de los datos
+             aes(xintercept = mean(value)), linetype = "dashed", color = "dark red",
+             # No mostrar la leyenda
+             show.legend = F) +
+  labs(title = "Histograma",
+       subtitle = "Frecuencia peso de manzanas",
+       x = "Peso manzanas (g)",
+       y = "Conteo [n]") +
+  theme(legend.position = "bottom")
+
+# d) Calcule e interprete P10 y P75
+# P10
+k <- 10; Li <- 135; ci <- 15; fi <- 35; Fi1 <- 15; N <- manzanas.tf$f %>% sum()
+
+P10 <- Li + ((k*N/100)-Fi1)*ci/fi; P10
+
+# P75
+k <- 75; Li <- 195; ci <- 15; fi <- 42; Fi1 <- 185; N <- manzanas.tf$f %>% sum()
+
+P75 <- Li + ((k*N/100)-Fi1)*ci/fi; P75
+
+# e) ¿Qué % de las manzanas pesa menos de 140 gr?
+P <- 140; Li <- 135; ci <- 15; fi <- 35; Fi1 <- 15; N <- manzanas.tf$f %>% sum()
+
+k <- ((P-Li)*fi/ci + Fi1)*100/N; k
+
+# f) ¿Cuántas de las 250 manzanas pesan más de 200 gr?
+P <- 200; Li <- 195; ci <- 15; fi <- 42; Fi1 <- 185; N <- manzanas.tf$f %>% sum()
+
+k <- ((P-Li)*fi/ci + Fi1)*100/N
+
+(k/100) * manzanas.tf$f %>% sum()
+
+# g) ¿Qué % de las manzanas tienen pesos entre µ ± ?????
+# sup: 201.5301
+manzanas.mean + manzanas.sd
+# inf: 149.8985
+manzanas.mean - manzanas.sd
+
+# sup
+P <- manzanas.mean + manzanas.sd; Li <- 195; ci <- 15; fi <- 42; Fi1 <- 185; N <- manzanas.tf$f %>% sum()
+
+k <- ((P-Li)*fi/ci + Fi1)*100/N;k # 80.66832
+
+# inf
+P <- manzanas.mean - manzanas.sd; Li <- 135; ci <- 15; fi <- 35; Fi1 <- 15; N <- manzanas.tf$f %>% sum()
+
+k <- ((P-Li)*fi/ci + Fi1)*100/N;k # 19.7473
+
+80.66832 - 19.7473 # 60.92102
+
+# h) ¿Entre qué pesos está comprendido el 90% central de las manzanas?
+# 90% central: entre el 5% y 95%
+# P95
+k <- 95; Li <- 210; ci <- 15; fi <- 25; Fi1 <- 227; N <- manzanas.tf$f %>% sum()
+
+P95 <- Li + ((k*N/100)-Fi1)*ci/fi; P95 # 217.44
+
+# P5
+k <- 5; Li <- 120; ci <- 15; fi <- 15; Fi1 <- 0; N <- manzanas.tf$f %>% sum()
+
+P5 <- Li + ((k*N/100)-Fi1)*ci/fi; P5 # 132.6
+
+# Pregunta 14 ----
+# . Calcule el promedio ponderado de un alumno que obtuvo en un ramo las siguientes
+# calificaciones con sus correspondientes ponderaciones:
+
+notas <- tibble(Notas = c(4.5, 3.2, 5.4, 5),
+                Ponderacion = 1:4)
+
+# weighted.mean(): Calcular el promedio ponderado
+weighted.mean(
+  # Notas
+  x = notas$Notas,
+  # Ponderación
+  w = notas$Ponderacion)
+
+# Pregunta 15 ----
+# . Un inversionista posee tres tipos de acciones A, B y C en proporción 3:7:5 ¿Cuál es su ganancia
+# promedio por acción si la ganancia de las acciones tipo A, B y C son $250, $380 y $170
+# respectivamente?
+
+acciones <- tibble(Acciones = LETTERS[1:3],
+                   Proporcion = c(3, 7, 5),
+                   Ganancias = c(250, 380, 170))
+
+weighted.mean(x = acciones$Ganancias,
+              w = acciones$Proporcion)
 
