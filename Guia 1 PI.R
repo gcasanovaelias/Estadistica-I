@@ -165,10 +165,13 @@ data_productores <- tibble(Tamaño = c("Pequeño", "Mediano", "Grande"),
                            Mediano = c(85, 60, 41),
                            Alto = c(33, 72, 39))
 
-data_productores_longer <- data_productores %>% 
+data_productores_tf <- data_productores %>% 
   pivot_longer(cols = -Tamaño,
                names_to = make.names("Nivel tecnologico"),
-               values_to = "f")
+               values_to = "f") %>% 
+  mutate(h = f/sum(f)*100,
+         F = cumsum(f),
+         H = cumsum(h))
 
 # a) Construya un gráfico que permita comparar adecuadamente nivel tecnológico según tamaño
 ggplot(data = data_productores_longer, 
@@ -575,7 +578,8 @@ manzanas.CV <- manzanas.sd/manzanas.mean*100
 manzanas.tib <- map2(.x = manzanas.tf$MC, 
                      .y = manzanas.tf$f,
                      .f = ~rep(.x, .y)) %>% 
-  reduce(c) %>% 
+  # append(): similar a concatenar
+  reduce(append) %>% 
   as_tibble()
 
 
