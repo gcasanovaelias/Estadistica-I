@@ -1,6 +1,5 @@
 # Pregunta 18 ----
-# En un predio se determinó el porcentaje de animales enfermos y el número de cabezas por
-# raza, los que se resumen en la tabla:
+# En un predio se determinó el porcentaje de animales enfermos y el número de cabezas por raza, los que se resumen en la tabla:
 
 raza <- tibble(Raza = c("Hereford", "Angus", "Charoláis"),
                h.enfermos = c(2.5, 3.4, 5),
@@ -24,8 +23,7 @@ raza %>%
   mean()
 
 # Pregunta 19 ----
-# Durante un mes los siguientes ingredientes de una ración tuvieron la variación de precios
-# que se indican:
+# Durante un mes los siguientes ingredientes de una ración tuvieron la variación de precios que se indican:
 
 ingredientes <- tibble(Ingrediente = c("Maíz", "Cebada", "Heno", "Afrechillo", "Harina de pescado", "Otros"),
                        Var.percen = c(10, -6, -8, 5, 7, 12),
@@ -43,8 +41,7 @@ weighted.mean(x = ingredientes$Var.percen,
               w = ingredientes$Costo)
 
 # Pregunta 20 ----
-# Un enfermo obtuvo los siguientes resultados en 3 exámenes: A= 50,35; B= 5,48; C= 0,03 Se sabe
-# que estas pruebas en individuos sanos se caracteriza por los siguientes valores
+# Un enfermo obtuvo los siguientes resultados en 3 exámenes: A= 50,35; B= 5,48; C= 0,03 Se sabe que estas pruebas en individuos sanos se caracteriza por los siguientes valores
 
 examen <- tibble(Examen = LETTERS[1:3],
                  Results = c(50.35, 5.48, 0.03),
@@ -72,8 +69,7 @@ s + facet_grid(Examen ~ .,
                scales = "free")
 
 # Pregunta 22 ----
-# En dos poblaciones A y B los pesos promedios y su correspondiente desviación estándar son 65
-# ± 3 kg para la población A y 68 ± 10 kg para la población B
+# En dos poblaciones A y B los pesos promedios y su correspondiente desviación estándar son 65 ± 3 kg para la población A y 68 ± 10 kg para la población B
 
 pesos <- tibble(Población = LETTERS[1:2],
                 Mean = c(65, 68),
@@ -89,8 +85,7 @@ ggplot(data = pesos, aes(x = Población, y = Mean, color = Población)) +
        y = "Peso promedio [kg]")
 
 # Pregunta 23 ----
-# Tres atletas A, B, C a ser seleccionados para las olimpiadas marcaron los siguientes tiempos en
-# 5 ensayos de los 100 metros planos.
+# Tres atletas A, B, C a ser seleccionados para las olimpiadas marcaron los siguientes tiempos en 5 ensayos de los 100 metros planos.
 
 tiempos <- tibble(A = c(11.1, 11, 11.8, 15.8, 11.1),
                   B = c(11.3, 11.4, 11.5, 11.6, 11.4),
@@ -157,8 +152,7 @@ hombres <- padres_longer %>%
   mutate(h = f/sum(f)*100,
          "Sexo" = "Hombres")
 
-# c) Calcule los promedios de edades de hombres y mujeres y comente cual es la diferencia de
-# edades entre los padres y las madres.
+# c) Calcule los promedios de edades de hombres y mujeres y comente cual es la diferencia de edades entre los padres y las madres.
 padres_list <- list(Mujeres = mujeres,
                     Hombres = hombres) %>% 
   map(.f = ~mutate(.data = .x, 

@@ -3,8 +3,7 @@ library(tidyverse)
 library(agricolae)
 
 # Pregunta 1 ----
-#* Represente gráficamente de dos maneras diferentes la información del número de cajas
-#* exportadas de las siguientes especies:
+#* Represente gráficamente de dos maneras diferentes la información del número de cajas exportadas de las siguientes especies:
 
 datos_frutas <- tibble(Especie = c("Uva blanca", "Uva negra y rosada", "Pómaceas", "Carozos"),
                        N.cajas = c(185, 157, 215, 139))
@@ -34,8 +33,7 @@ ggplot(data = datos_frutas, aes(x = "", y = N.cajas, fill = Especie)) +
   theme(legend.position = "bottom")
 
 # Pregunta 2 ----
-#* Las causas más frecuentes de atención en caninos en una clínica veterinaria de la comuna de
-#* Santiago en dos épocas del año se presenta a continuación:
+#* Las causas más frecuentes de atención en caninos en una clínica veterinaria de la comuna de Santiago en dos épocas del año se presenta a continuación:
 
 # Tabular las bases de datos en función de las variables. tienen que haber tantas columnas como variables haya.
 datos_canino <- tibble(Causa = c("Neumonía", "Gastritis", "Enteritis", "Parasitismo", "Distemper", "Dermatitis", "Traumatismos"),
@@ -91,8 +89,7 @@ ggplot(data = datos_canino_anual, aes(x = Causa, y = N.atenciones, fill = Causa)
   geom_text(aes(label = N.atenciones), vjust = 1.6, color = "white", size = 4) +
   theme(legend.position = "bottom")
 
-# c) Construya un gráfico en que se puedan comparar las causas por época ¿Cuál(es) causas son
-# más importantes en verano? ¿Cuál(es) causas son más importantes en invierno?
+# c) Construya un gráfico en que se puedan comparar las causas por época ¿Cuál(es) causas son más importantes en verano? ¿Cuál(es) causas son más importantes en invierno?
 ggplot(data = datos_canino_longer, aes(x = Causa, y = N.atenciones, fill = Causa)) + 
   geom_bar(stat = "identity", position = "dodge") +
   labs(title = "N° atenciones",
@@ -103,8 +100,7 @@ ggplot(data = datos_canino_longer, aes(x = Causa, y = N.atenciones, fill = Causa
   theme(legend.position = "bottom") +
   facet_wrap(~Temporada)
 
-# d) Construya otro gráfico en que se puedan comparar las épocas por causa ¿En cuál época es
-# más crítica el distemper? ¿En cuál época es más crítica la gastritis?
+# d) Construya otro gráfico en que se puedan comparar las épocas por causa ¿En cuál época es más crítica el distemper? ¿En cuál época es más crítica la gastritis?
 
 ggplot(data = datos_canino_longer, aes(x = Temporada, y = N.atenciones, fill = Causa)) + 
   geom_bar(stat = "identity", position = "dodge") +
@@ -117,8 +113,7 @@ ggplot(data = datos_canino_longer, aes(x = Temporada, y = N.atenciones, fill = C
   facet_wrap(~Causa)
 
 # Pregunta 3 ----
-# En una encuesta sobre hábito de consumo de ciertas frutas de las familias en las comunas de
-# Ñuñoa y San Miguel, se obtuvo la siguiente información
+# En una encuesta sobre hábito de consumo de ciertas frutas de las familias en las comunas de Ñuñoa y San Miguel, se obtuvo la siguiente información
 
 data_comunas <- tibble(Fruta = c("Uva de mesa", "Duraznos", "Manzanas", "Peras", "Naranjas", "Kiwis", "Guindas"),
                        Ñuñoa = c(15, 19, 17, 8, 10, 27, 12),
@@ -129,8 +124,7 @@ data_comunas_longer <- data_comunas %>%
                names_to = "Comuna",
                values_to = "N.familia")
 
-# b) Represente en un gráfico adecuado estos datos mostrando las preferencias por cada
-# comuna.
+# b) Represente en un gráfico adecuado estos datos mostrando las preferencias por cada comuna.
 
 ggplot(data = data_comunas_longer, aes(x = Fruta, y = N.familia, fill = Fruta)) + 
   geom_bar(stat = "identity", position = "dodge") +
@@ -156,9 +150,7 @@ ggplot(data = data_comunas_longer, aes(x = Comuna, y = N.familia, fill = Comuna)
 
 
 # Pregunta 4 ----
-# En una encuesta a 600 productores de trigo se les consultó sobre superficie sembrada y la
-# tecnología empleada en su predio. Posteriormente fueron clasificados en tres categorías de tamaño
-# y tres niveles de tecnología, dando origen a la siguiente información
+# En una encuesta a 600 productores de trigo se les consultó sobre superficie sembrada y la tecnología empleada en su predio. Posteriormente fueron clasificados en tres categorías de tamaño y tres niveles de tecnología, dando origen a la siguiente información
 
 data_productores <- tibble(Tamaño = c("Pequeño", "Mediano", "Grande"),
                            Bajo = c(182, 68, 20),
@@ -204,8 +196,7 @@ ggplot(data = data_productores_longer,
   facet_wrap(~fct_relevel(Nivel.tecnologico, "Bajo", "Mediano", "Alto"))
 
 # Pregunta 5 ----
-# La tabla muestra la distribución de 340 plantas enfermas que fueron sometidas a uno de los cuatro
-# tratamientos curativos A, B, C y D, de acuerdo a su condición después de finalizado el tratamiento
+# La tabla muestra la distribución de 340 plantas enfermas que fueron sometidas a uno de los cuatro tratamientos curativos A, B, C y D, de acuerdo a su condición después de finalizado el tratamiento
 
 datos_plantas <- tibble(Tratamiento = LETTERS[1:4],
                         Mejor = c(13, 34, 22, 35),
@@ -233,8 +224,7 @@ s + geom_bar(stat = "identity", position = "stack")
 s + geom_bar(stat = "identity", position = "fill")
 
 # Pregunta 6 ----
-#  La información de la tabla corresponde a la producción de carne de ganado bovino (en ton.), por
-# categoría, durante 5 años en un matadero de Santiago
+#  La información de la tabla corresponde a la producción de carne de ganado bovino (en ton.), por categoría, durante 5 años en un matadero de Santiago
 
 dato_carne <- tibble(Año = seq(from = 1997, to = 2001),
                      Novillos = c(89762, 96710, 94104, 114023, 123071),
@@ -271,8 +261,7 @@ ggplot(data = dato_carne_longer, aes(x = Año, y = Producción, fill = Categoría))
   facet_wrap(~Categoría)
 
 # Pregunta 7 ----
-# Los embarques de frambuesas frescas a Europa y USA, durante 8 semanas, en miles de cajas, se
-# resume en la tabla a continuación
+# Los embarques de frambuesas frescas a Europa y USA, durante 8 semanas, en miles de cajas, se resume en la tabla a continuación
 
 frambuesas <- tibble(Destino = c("USA", "EUROPA"),
                      S1 = c(34, 10),
@@ -422,8 +411,7 @@ ggplot(data = arañas, aes(x = N.arañas)) +
        y = "Conteo [n]")
 
 # Pregunta 11 ----
-# En una encuesta a 750 familias se obtuvo la información del número de hijos de cada una de
-# ellas, resumida en la siguiente tabla
+# En una encuesta a 750 familias se obtuvo la información del número de hijos de cada una de ellas, resumida en la siguiente tabla
 
 # a) Tabla de frecuencia
 familia <- tibble(N.hijos = seq(from = 0, to = 8),
@@ -539,8 +527,7 @@ puntajes.sd <- map2(.x = puntajes.tb$MC,
   sqrt()
 
 # Pregunta 13 ----
-# La tabla corresponde a la clasificación de los pesos de 250 manzanas Granny seleccionadas al
-# azar de la producción de un huerto
+# La tabla corresponde a la clasificación de los pesos de 250 manzanas Granny seleccionadas al azar de la producción de un huerto
 
 # Tabla de frecuencia (datos cuantitativos continuos)
 manzanas.tf <- tibble(Lower = seq(from = 120, to = 210, by = 15),
@@ -654,8 +641,7 @@ k <- 5; Li <- 120; ci <- 15; fi <- 15; Fi1 <- 0; N <- manzanas.tf$f %>% sum()
 P5 <- Li + ((k*N/100)-Fi1)*ci/fi; P5 # 132.6
 
 # Pregunta 14 ----
-# . Calcule el promedio ponderado de un alumno que obtuvo en un ramo las siguientes
-# calificaciones con sus correspondientes ponderaciones:
+# . Calcule el promedio ponderado de un alumno que obtuvo en un ramo las siguientes calificaciones con sus correspondientes ponderaciones:
 
 notas <- tibble(Notas = c(4.5, 3.2, 5.4, 5),
                 Ponderacion = 1:4)
@@ -668,9 +654,7 @@ weighted.mean(
   w = notas$Ponderacion)
 
 # Pregunta 15 ----
-# . Un inversionista posee tres tipos de acciones A, B y C en proporción 3:7:5 ¿Cuál es su ganancia
-# promedio por acción si la ganancia de las acciones tipo A, B y C son $250, $380 y $170
-# respectivamente?
+# . Un inversionista posee tres tipos de acciones A, B y C en proporción 3:7:5 ¿Cuál es su ganancia promedio por acción si la ganancia de las acciones tipo A, B y C son $250, $380 y $170 respectivamente?
 
 acciones <- tibble(Acciones = LETTERS[1:3],
                    Proporcion = c(3, 7, 5),
